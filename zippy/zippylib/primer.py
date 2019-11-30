@@ -17,12 +17,11 @@ import pysam
 import subprocess
 from collections import defaultdict, OrderedDict, Counter
 from .interval import Interval
-from string import maketrans
-from urllib import unquote
+from urllib.parse import unquote
 from Bio import Entrez
 import xmltodict
 
-revcmp = maketrans('ACGTNacgtn','TGCANtgcan')
+revcmp = str.maketrans('ACGTNacgtn','TGCANtgcan')
 class ChromosomeNotFoundError(KeyError):
     pass
 
@@ -136,7 +135,7 @@ class MultiFasta(object):
         # cleanup
         if delete:
             os.unlink(self.file+'.sam') # delete mapping FILE
-        return primers.values()
+        return list(primers.values())
 
 '''Boundary exceeded exception (max list size)'''
 class BoundExceedError(Exception):
@@ -156,7 +155,7 @@ class Location(object):
         # store wells
         self.wells = set(well.split(','))
         try:
-            assert all(map(lambda x: re.match(r'\w\d',x),list(self.wells)))
+            assert all([re.match(r'\w\d',x) for x in list(self.wells)])
         except:
             raise Exception('InvalidWell')
 
@@ -543,13 +542,13 @@ class Primer3(object):
             upperlimit=min(upperlimit,fasta.lengths[fndref])
         #self.target=(target[0],lowerlimit-self.flank,upperlimit+self.flank)#Assign the target after clipping to valid positions
         self.target=(target[0],lowerlimit,upperlimit)#Assign the target after clipping to valid positions
-        self.designregion = ( str(self.target[0]), lowerlimit, upperlimit )
-        #self.designregion = ( str(self.target[0]), lowerlimit+self.flank, upperlimit+self.flank )
+        #self.designregion = ( str(self.target[0]), lowerlimit, upperlimit )
+        self.designregion = ( self.target[0], lowerlimit, upperlimit )
         try:
             #self.sequence = fasta.fetch(*self.designregion)
             self.sequence = fasta.fetch(self.designregion[0])
         except KeyError as kerr:
-            assert kerr.args[0]=="sequence '{0}' not present".format(self.designregion[0])
+            assert kerr.args[0]=="sequence 'b'{0}'' not present".format(self.designregion[0]), (kerr, "sequence 'b'{0}'' not present".format(self.designregion[0]))
             assert self.designregion[0][0:3].lower()=="chr"
             #self.target=(self.designregion[0][3:],lowerlimit+self.flank,upperlimit+self.flank)
             self.target=(self.designregion[0][3:],lowerlimit,upperlimit)

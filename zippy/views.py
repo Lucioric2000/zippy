@@ -14,7 +14,6 @@ from celery import Celery
 from werkzeug.utils import secure_filename
 from . import app
 from .zippy import zippyBatchQuery, zippyPrimerQuery, updateLocation, searchByName, updatePrimerName, updatePrimerPairName, blacklistPair, deletePair, readprimerlocations
-from .zippylib import ascii_encode_dict
 from .zippylib.primer import Location, ChromosomeNotFoundError
 from .zippylib.database import PrimerDB
 
@@ -25,7 +24,8 @@ app.config['DOWNLOAD_FOLDER'] = 'results'
 app.config['CONFIG_FILE'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'zippy.json')
 # read password (SHA1 hash, not the safest)
 with open(app.config['CONFIG_FILE']) as conf:
-    config = json.load(conf, object_hook=ascii_encode_dict)
+    #config = json.load(conf, object_hook=ascii_encode_dict)
+    config = json.load(conf)
     app.config['PASSWORD'] = config['password']
 
 
@@ -64,7 +64,7 @@ def login():
     error = None
     if request.method == 'POST':
         #it used bcrypt.hashpw(request.form['password'].rstrip().encode('utf-8'), app.config['PASSWORD']) in the original viapath/zippy package, but this didn't work
-        if request.form['password'].rstrip().encode('utf-8') == app.config['PASSWORD']:
+        if request.form['password'].rstrip() == app.config['PASSWORD']:
             session['logged_in'] = True
             return redirect(url_for('index'))
         else:
@@ -109,7 +109,7 @@ def upload():
     uploadFile = request.files['variantTable']
     uploadFile2 = request.files['missedRegions']
     uploadFile3 = request.files['singleGenes']
-    tiers = map(int, request.form.getlist('tiers'))
+    tiers = list(map(int, request.form.getlist('tiers')))
     predesign = request.form.get('predesign')
     design = request.form.get('design')
     outfile = request.form.get('outfile')
@@ -125,7 +125,7 @@ def upload():
     if uploadedFiles:
         # open config file and database
         with open(app.config['CONFIG_FILE']) as conf:
-            config = json.load(conf, object_hook=ascii_encode_dict)
+            config = json.load(conf)
             db = PrimerDB(config['database'], dump=config['ampliconbed'])
 
         # create output folder
@@ -207,7 +207,7 @@ def adhocdesign():
             args = locus
         # read config
         with open(app.config['CONFIG_FILE']) as conf:
-            config = json.load(conf, object_hook=ascii_encode_dict)
+            config = json.load(conf)
             db = PrimerDB(config['database'],dump=config['ampliconbed'])
         # run Zippy
         primerTable, resultList, missedIntervals, flash_messages = zippyPrimerQuery(config, args, design, None, db, store, tiers, gap)
@@ -240,7 +240,7 @@ def updatePrimerLocation():
         return render_template('location_updated.html', status=None)
     # read config
     with open(app.config['CONFIG_FILE']) as conf:
-        config = json.load(conf, object_hook=ascii_encode_dict)
+        config = json.load(conf)
         db = PrimerDB(config['database'],dump=config['ampliconbed'])
     # run zippy and render
     updateStatus = updateLocation(primername, loc, db, force)
@@ -259,7 +259,7 @@ def update_pair_name(pairName):
         flash('New name is the same as current', 'warning')
         return render_template('update_pair.html', pairName=pairName)
     with open(app.config['CONFIG_FILE']) as conf:
-        config = json.load(conf, object_hook=ascii_encode_dict)
+        config = json.load(conf)
         db = PrimerDB(config['database'],dump=config['ampliconbed'])
         if updatePrimerPairName(pairName, newName, db):
             flash('Pair "%s" renamed "%s"' % (pairName, newName), 'success')
@@ -288,7 +288,7 @@ def updateLocationFromTable(primerInfo):
             print ('Please fill in all fields (PrimerName VesselNumber Well)', file=sys.stderr)
             return render_template('location_updated.html', status=None)
         with open(app.config['CONFIG_FILE']) as conf:
-            config = json.load(conf, object_hook=ascii_encode_dict)
+            config = json.load(conf)
             db = PrimerDB(config['database'], dump=config['ampliconbed'])
         # run zippy and render
         updateStatus = updateLocation(primerName, loc, db, force)
@@ -327,7 +327,7 @@ def update_name_of_primer(primerInfo):
         flash('Primer renaming failed - new name is the same as current', 'warning')
         return render_template('update_location_from_table.html', primerName=newName, primerLoc=primerLoc)
     with open(app.config['CONFIG_FILE']) as conf:
-        config = json.load(conf, object_hook=ascii_encode_dict)
+        config = json.load(conf)
         db = PrimerDB(config['database'], dump=config['ampliconbed'])
         if updatePrimerName(currentName, newName, db):
             flash('Primer "%s" renamed "%s"' % (currentName, newName), 'success')
@@ -347,7 +347,7 @@ def searchName():
 def search_by_name():
     searchName = session['searchName']
     with open(app.config['CONFIG_FILE']) as conf:
-        config = json.load(conf, object_hook=ascii_encode_dict)
+        config = json.load(conf)
         db = PrimerDB(config['database'], dump=config['ampliconbed'])
         searchResult = searchByName(searchName, db)
     return render_template('searchname_result.html', searchResult=searchResult, searchName=searchName)
@@ -357,7 +357,7 @@ def search_by_name():
 def blacklist_pair(pairname):
     print ('This is the pairname: ' + pairname, file=sys.stderr)
     with open(app.config['CONFIG_FILE']) as conf:
-        config = json.load(conf, object_hook=ascii_encode_dict)
+        config = json.load(conf)
         db = PrimerDB(config['database'], dump=config['ampliconbed'])
         blacklisted = blacklistPair(pairname, db)
         for b in blacklisted:
@@ -369,7 +369,7 @@ def blacklist_pair(pairname):
 def delete_pair(pairname):
     print ('This is the pairname: ' + pairname, file=sys.stderr)
     with open(app.config['CONFIG_FILE']) as conf:
-        config = json.load(conf, object_hook=ascii_encode_dict)
+        config = json.load(conf)
         db = PrimerDB(config['database'], dump=config['ampliconbed'])
         deleted = deletePair(pairname, db)
         for d in deleted:
@@ -389,7 +389,7 @@ def upload_samplesheet():
             locationsheet.save(saveloc)
             updateList = readprimerlocations(saveloc)
             with open(app.config['CONFIG_FILE']) as conf:
-                config = json.load(conf, object_hook=ascii_encode_dict)
+                config = json.load(conf)
                 db = PrimerDB(config['database'], dump=config['ampliconbed'])
                 for item in updateList:
                     updateStatus = updateLocation(item[0], item[1], db, True)  # Force is set to True, will force primers into any occupied locations

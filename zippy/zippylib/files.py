@@ -17,7 +17,7 @@ from collections import Counter, defaultdict
 from hashlib import sha1
 from . import ConfigError
 from .interval import *
-from urllib import quote, unquote
+from urllib.parse import quote, unquote
 
 '''GenePred parser with automatic segment numbering and tiling'''
 class GenePred(IntervalList):
@@ -56,15 +56,15 @@ class GenePred(IntervalList):
                     # parse exons
                     for e in zip(f[9].split(','),f[10].split(',')):
                         try:
-                            map(int,e)
+                            eints = list(map(int,e))
                         except:
                             continue
-                        if int(e[1]) < geneStart or geneEnd < int(e[0]):
+                        if eints[1] < geneStart or geneEnd < eints[0]:
                             continue  # noncoding
                         #print("exon", e, f[12])
                         try:
-                            exonStart = int(e[0]) if noncoding else max(geneStart,int(e[0]))
-                            exonEnd = int(e[1]) if noncoding else min(geneEnd,int(e[1]))
+                            exonStart = eints[0] if noncoding else max(geneStart,eints[0])
+                            exonEnd = eints[1] if noncoding else min(geneEnd,eints[1])
                             gene.addSubintervals([Interval(f[2],exonStart,exonEnd,f[12],reverse)])
                         except ValueError:
                             assert 0
@@ -78,7 +78,7 @@ class GenePred(IntervalList):
                         assert len(ovpgenes) == 1
                     except:
                         # MERGE 2 GENES (there were non-overlapping transcripts in same gene locus!)
-                        for i in range(1,len(ovpgenes)):
+                        for i in range(1, len(ovpgenes)):
                             ovpgenes[0].merge(ovpgenes[i],subintervals=True)
                             genes[gene.name].remove(ovpgenes[i])  # remove merged
                     ovpgenes[0].addSubintervals(gene.subintervals)  # add exons from other transcript/gene
@@ -117,7 +117,7 @@ class GenePred(IntervalList):
                     i = 0
                     for e in combinedExons:
                         # get exons
-                        ii = range(i,i+len(e))
+                        ii = list(range(i,i+len(e)))
                         exonNumbers = [ len(g.subintervals) - x for x in ii ] if g.strand < 0 else [ x+1 for x in ii ]
                         if len(e)>1:  # combine exons
                             for j in range(1,len(e)):
@@ -240,7 +240,7 @@ class SNPpy(IntervalList):
                 # build variant/test description
                 if 'primers' in row.keys():  # sample, primer list
                     assert db  # must have database handle to xtract targets
-                    pairnames = map(lambda x: x.strip(), row['primers'].split(','))
+                    pairnames = [x.strip() for x in row['primers'].split(',')]
                     for pp in pairnames:
                         # get pair(s)
                         pairs = db.query(pp)
@@ -260,7 +260,7 @@ class SNPpy(IntervalList):
                     # parse variant name
                     variantDescription = [ row['geneID'] ]
                     if '-' in row['position']:  # interval (gene,chrom,exon,hgvs/pos,zyg)
-                        chromStart, chromEnd = map(int,row['position'].split('-'))
+                        chromStart, chromEnd = list(map(int,row['position'].split('-')))
                         variantDescription += [ row['chromosome'] ]
                     else:  # variant (gene,tx,exon,hgvs/pos,zyg)
                         if 'HGVS_c' in row.keys():

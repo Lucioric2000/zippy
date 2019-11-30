@@ -22,7 +22,7 @@ from hashlib import sha1
 from collections import Counter
 from . import PlateError, char_range, imageDir, githash
 from .primer import parsePrimerName, PrimerPair, Primer
-from urllib import unquote
+from urllib.parse import unquote
 
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
@@ -227,7 +227,7 @@ class Report(object):
             ]
         # MERGE CELLS
         for i, c in enumerate(mergeColumnFields):
-            rowRanges = range(firstData[1],len(data[firstData[1]:]))  # groups that are treated seperately
+            rowRanges = list(range(firstData[1],len(data[firstData[1]:])))  # groups that are treated seperately
             offsetRow = firstData[1]  # define first row offset
             for k,g in groupby([ data[r][c] for r in range(firstData[1],len(data)) ]):
                 groupSize = len(list(g))
@@ -643,7 +643,7 @@ class Plate(object):
         # # generate plate map
         trunc = lambda x: '<br/>'.join([ x.sample[:9]+'...' if len(x.sample)>12 else x.sample,
             x.primerpair[:9]+'...' if len(x.primerpair)>12 else x.primerpair]) if x is not None else "EMPTY"
-        pm = [ map(trunc,r) for r in self.M ]
+        pm = [list(map(trunc,r)) for r in self.M ]
         # return values
         return sorted(list(s)), sorted(list(p),key=lambda x: x.name), pm
 

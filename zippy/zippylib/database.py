@@ -300,7 +300,7 @@ class PrimerDB(object):
                     where p.dateadded LIKE ?
                     ORDER BY p.pairid;''', \
                     (subSearchName,))
-            elif type(query) in [str,unicode]:  # use primerpair name
+            elif type(query) is str:  # use primerpair name
                 subSearchName = '%'+query+'%'
                 cursor.execute('''SELECT DISTINCT p.pairid, l.tag, r.tag, l.seq, r.seq, p.left, p.right,
                     p.chrom, p.start, p.end, l.vessel, l.well, r.vessel, r.well, 0, p.comments

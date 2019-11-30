@@ -24,18 +24,18 @@ import tempfile
 import hashlib
 import csv
 import collections
-from zippylib.files import VCF, BED, GenePred, Interval, Data, readTargets, readBatch
-from zippylib.primer import Genome, MultiFasta, Primer3, Primer, PrimerPair, Location, parsePrimerName
-from zippylib.reports import Test
-from zippylib.database import PrimerDB
-from zippylib.interval import IntervalList
-from zippylib import ConfigError, Progressbar, banner
-from zippylib.reports import Worksheet
+from .zippylib.files import VCF, BED, GenePred, Interval, Data, readTargets, readBatch
+from .zippylib.primer import Genome, MultiFasta, Primer3, Primer, PrimerPair, Location, parsePrimerName
+from .zippylib.reports import Test
+from .zippylib.database import PrimerDB
+from .zippylib.interval import IntervalList
+from .zippylib import ConfigError, Progressbar, banner
+from .zippylib.reports import Worksheet
 from argparse import ArgumentParser
 from copy import deepcopy
 from collections import defaultdict, Counter
-from urllib import unquote
-import cPickle as pickle
+from urllib.parse import unquote
+import pickle
 sys.stderr=sys.stdout
 
 '''file MD5'''
@@ -55,9 +55,9 @@ def importPrimerLocations(inputfile):
     with open(inputfile) as infh:
         for i,line in enumerate(infh):
             if i == 0:
-                header = map(lambda x : x.lower(), line.rstrip().split('\t'))
+                header = [x.lower() for x in line.rstrip().split('\t')]
             else:
-                f = map(lambda x: x.strip('"'), line.rstrip().split('\t'))
+                f = [x.strip('"') for x in line.rstrip().split('\t')]
                 l = dict(zip(header,f))
                 # store metadata and write fasta
                 if 'vessel' in l.keys() and 'well' in l.keys() and \
@@ -88,14 +88,14 @@ def importPrimerPairs(inputfile, config, primer3=True):
                 for i,line in enumerate(infh):
                     if i == 0:
                         minimalHeader = set(['primername','primerset','tag','sequence','vessel','well'])
-                        header = map(lambda x : x.lower(), line.rstrip().split('\t'))
+                        header = [x.lower() for x in line.rstrip().split('\t')]
                         try:
                             assert not minimalHeader.difference(set(header))
                         except:
                             print ('ERROR: Missing columns (%s)' % ','.join(list(minimalHeader.difference(set(header)))), file=sys_stderr)
                             raise Exception('FileHeaderError')
                     else:
-                        f = map(lambda x: x.strip('"'), line.rstrip().split('\t'))
+                        f = [x.strip('"') for x in line.rstrip().split('\t')]
                         l = dict(zip(header, f))
                         # remove tag from sequence
                         if l['tag']:
@@ -316,9 +316,10 @@ def getPrimers(intervals, db, design, config, tiers=[0], rename=None, compatible
             sys.stderr.write('\r'+progress.show(len(insufficentAmpliconIntervals))+'\n')
             if designedPairs:
                 ## import designed primer pairs (place on genome and get amplicons)
-                with tempfile.NamedTemporaryFile(suffix='.fa',prefix="primers_",delete=False) as fh:
+                with tempfile.NamedTemporaryFile(suffix='.fa',prefix="primers_",delete=False, mode="wt") as fh:
                     for k,v in designedPairs.items():
                         for pairnumber, pair in enumerate(v):
+                            #assert 0, k.name
                             print (pair[0].fasta('_'.join([ k.name, str(pairnumber), 'rev' if k.strand < 0 else 'fwd' ])), file=fh)
                             print (pair[1].fasta('_'.join([ k.name, str(pairnumber), 'fwd' if k.strand < 0 else 'rev' ])), file=fh)
                 pairs = importPrimerPairs(fh.name, config, primer3=True)
@@ -463,7 +464,7 @@ def getPrimers(intervals, db, design, config, tiers=[0], rename=None, compatible
     # update primer pairs with covered variants
     for pp, v in primerVariants.items():
         pp.variants = v
-    return primerTable, primerVariants.keys(), missedIntervals, flash_messages
+    return primerTable, list(primerVariants.keys()), missedIntervals, flash_messages
 
 # ==============================================================================
 # === convenience functions for webservice =====================================
@@ -732,8 +733,8 @@ def readprimerlocations(locationfile):
 # === CLI ======================================================================
 # ==============================================================================
 def main():
-    from zippylib import ascii_encode_dict
-    from zippylib import banner
+    from .zippylib import ascii_encode_dict
+    from .zippylib import banner
 
     print (banner(__version__),  file=sys.stderr) 
 
@@ -850,7 +851,7 @@ def main():
             try:
                 l = options.amplicons.split('-')
                 assert len(l)==2
-                amplen = map(int,l)
+                amplen = list(map(int, l))
             except (AssertionError, ValueError):
                 raise ConfigError('must give amplicon size to retrieve')
             except:
@@ -891,10 +892,10 @@ def main():
             print ('REMOVED ORPHANS:   {}'.format(','.join(db.removeOrphans())), file=sys.stderr)
     elif options.which=='get':  # get primers for targets (BED/VCF or interval)
         zippyPrimerQuery(config, options.targets, options.design, options.outfile, \
-            db, options.store, map(int,options.tiers.split(',')), options.gap)
+            db, options.store, list(map(int,options.tiers.split(','))), options.gap)
     elif options.which=='batch':
         zippyBatchQuery(config, options.targets.split(','), options.design, options.outfile, \
-            db, options.predesign, map(int,options.tiers.split(',')))
+            db, options.predesign, list(map(int,options.tiers.split(','))))
     elif options.which=='query':
         searchByName(options.subString, db)
 
