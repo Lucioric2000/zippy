@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 # -*- coding: utf-8 -*-
 
 __doc__=="""Primer3 Classes"""
@@ -78,7 +79,7 @@ class MultiFasta(object):
         with pysam.FastaFile(self.file) as fasta:
             self.references = fasta.references
             if len(set(fasta.references))!=len(fasta.references):
-                print >> sys.stderr, self.file
+                print(self.file, file=sys.stderr)
                 raise Exception('DuplicateSequenceNames')
 
     def createPrimers(self,db,bowtie='bowtie2', delete=True, tags={}, tmThreshold=50.0, endMatch=6, maxAln=20):
@@ -298,9 +299,9 @@ class PrimerPair(list):
         with open(logfile, 'a') as fh:
             for p in self:
                 threeprimesnps = len([ s for s in p.snp if s[1] >= 2*len(p)/3 ])
-                print >> fh, '{timestamp:26} {primername:20} rank:{rank:<3d} ({fwdrev:1}) {seq:25} snps:{snps:4} misprime:{misprime:2d}'.format(\
+                print ('{timestamp:26} {primername:20} rank:{rank:<3d} ({fwdrev:1}) {seq:25} snps:{snps:4} misprime:{misprime:2d}'.format(\
                     timestamp=timestamp[:26], primername=p.name, rank=p.rank, fwdrev='-' if p.targetposition.reverse else '+',
-                    seq=p.seq, snps=str(len(self[0].snp)-threeprimesnps)+'+'+str(threeprimesnps), misprime=len(p.loci)-1)
+                    seq=p.seq, snps=str(len(self[0].snp)-threeprimesnps)+'+'+str(threeprimesnps), misprime=len(p.loci)-1), file=fh)
         return
 
     def pruneRanks(self):
@@ -397,7 +398,7 @@ class PrimerPair(list):
         firstDifferent = min([ i for i,x in enumerate(zip(self[0].name,self[1].name)) if len(set(x))!=1 ])
         newName = self[0].name[:firstDifferent].rstrip('_-')
         if newName != self.name and len(newName) >= len(self.name):
-            print >> sys.stderr, 'INFO: Renamed PrimerPair {} -> {}'.format(self.name, newName)
+            print ('INFO: Renamed PrimerPair {} -> {}'.format(self.name, newName), file=sys.stderr)
             self.name = newName
             return True
         return False
@@ -548,7 +549,6 @@ class Primer3(object):
             #self.sequence = fasta.fetch(*self.designregion)
             self.sequence = fasta.fetch(self.designregion[0])
         except KeyError as kerr:
-            #print("Literal sequence not found: {0}".format(self.designregion))
             assert kerr.args[0]=="sequence '{0}' not present".format(self.designregion[0])
             assert self.designregion[0][0:3].lower()=="chr"
             #self.target=(self.designregion[0][3:],lowerlimit+self.flank,upperlimit+self.flank)
@@ -611,4 +611,4 @@ if __name__ == "__main__":
     mf = MultiFasta(sys.argv[1])
     primers = mf.createPrimers('/Users/dbrawand/dev/snappy/WORK/genome/human_g1k_v37.bowtie')
     for primer in primers:
-        print primer
+        print(primer)

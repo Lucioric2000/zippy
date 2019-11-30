@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 __doc__=="""File parsing classes"""
 __author__ = "David Brawand"
@@ -165,7 +166,7 @@ class BED(IntervalList):
                     else:  # automatic naming
                         iv = Interval(f[0],int(f[1]),int(f[2]))
                 except:
-                    print >> sys.stderr, f
+                    print (f, file=sys.stderr)
                     raise
                 intervalindex[iv.name].append(iv)
         # suffix interval names if necessary
@@ -198,7 +199,6 @@ class VCF(IntervalList):  # no interval tiling as a variant has to be sequenced 
                     self.samples = line[1:].split()[9:]  # sample header
             else:
                 f = line.split()
-                #print(f, fh, f[7])
                 iv = Interval(f[0],int(f[1]),int(f[1])+max(map(len,[f[3]]+f[4].split(','))),name=f[2] if f[2]!='.' else None, metadata=f[7])
                 self.append(iv)
         # add flanks and name
@@ -234,8 +234,8 @@ class SNPpy(IntervalList):
                         except:
                             raise Exception('UnknownColumn')
                 except:
-                    print >> sys.stderr, line
-                    print >> sys.stderr, row
+                    print(line, file=sys.stderr)
+                    print(row, file=sys.stderr)
                     raise
                 # build variant/test description
                 if 'primers' in row.keys():  # sample, primer list
@@ -307,9 +307,9 @@ class Data(object):
                 fh.close()
         else: # write as is
             fh = sys.stdout if fi == '-' else open(fi,'w')
-            print >> fh, self.header
+            print(self.header, file=fh)
             for d in self.data:
-                print >> fh, '\t'.join(map(str,[ d[f] for f in self.header]))
+                print('\t'.join(map(str,[ d[f] for f in self.header])), file=fh)
             if fi != '-':
                 fh.close()
 
@@ -340,7 +340,7 @@ def readBatch(fi,tiling,database=None):
     try:
         assert os.path.isfile(fi)
     except AssertionError:
-        print >> sys.stderr, "ERROR: Not a readable file (%s)" % fi
+        print("ERROR: Not a readable file (%s)" % fi, file=sys.stderr)
         raise
     with open(fi) as fh:
         intervals = SNPpy(fh,flank=tiling['flank'],db=database)
@@ -366,7 +366,7 @@ def hgvsLength(hgvs,default=10):
         try:
             l = int(hgvs)
         except:
-            print >> sys.stderr, "WARNING: could not find length of variant (%s), assuming %s" % (hgvs,str(default))
+            print("WARNING: could not find length of variant (%s), assuming %s" % (hgvs,str(default)), file=sys.stderr)
             return default
         else:
             return l
@@ -383,4 +383,4 @@ if __name__=="__main__":
     with open(sys.argv[1]) as fh:
         bed = BED(fh,**cfg)
         for i in bed:
-            print i
+            print(i)

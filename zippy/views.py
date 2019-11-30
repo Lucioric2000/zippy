@@ -1,4 +1,5 @@
 #!/usr/local/env python
+from __future__ import print_function
 
 import sys
 import os
@@ -119,7 +120,7 @@ def upload():
         if uf and allowed_file(uf.filename):
             uploadedFiles.append(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(uf.filename)))
             uf.save(uploadedFiles[-1])
-            print >> sys.stderr, "file saved to %s" % uploadedFiles[-1]
+            print("file saved to %s" % uploadedFiles[-1], file=sys.stderr)
 
     if uploadedFiles:
         # open config file and database
@@ -137,7 +138,7 @@ def upload():
         downloadFile = os.path.join(downloadFolder, outfile) if outfile else os.path.join(downloadFolder, shortName)
         arrayOfFiles, missedIntervalNames, flash_messages = zippyBatchQuery(config, uploadedFiles, design, downloadFile, db, predesign, tiers)
         for flash_message in flash_messages:
-            print("fmes", flash_message)
+            #print("fmes", flash_message)
             flash(*flash_message)
         return render_template('file_uploaded.html', outputFiles=arrayOfFiles, missedIntervals=missedIntervalNames)
     else:
@@ -177,28 +178,27 @@ def adhocdesign():
     uploadFile = request.files['filePath']
     locus = request.form.get('locus').strip()
     design = request.form.get('design')
-    tiers = map(int,request.form.getlist('tiers'))
+    tiers = list(map(int,request.form.getlist('tiers')))
     gap = request.form.get('gap')
     store = request.form.get('store')
 
-    print >> sys.stderr, 'tiers', tiers
-    print >> sys.stderr, 'locus', locus
-    print >> sys.stderr, 'gap', gap
-
+    print('tiers', tiers, file=sys.stderr)
+    print('locus', locus, file=sys.stderr)
+    print('gap', gap, file=sys.stderr)
     # if locus:
     rematch = re.match('\w{1,6}:\d+[-:]\d+',locus)
     if rematch or (uploadFile and allowed_file(uploadFile.filename)):
         # get target
         if uploadFile:
             filename = secure_filename(uploadFile.filename)
-            print >> sys.stderr, "Uploaded: ", filename
+            print ("Uploaded: ", filename, file=sys.stderr)
             try:
                 target = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             except Exception as exc:
                 import traceback
                 return str(traceback.format_exc())
             uploadFile.save(target)
-            print >> sys.stderr, "file saved to %s" % target
+            print("file saved to %s" % target, file=sys.stderr)
             if len(locus)>0:
                 args=(target,locus)
             else:
@@ -213,7 +213,7 @@ def adhocdesign():
         primerTable, resultList, missedIntervals, flash_messages = zippyPrimerQuery(config, args, design, None, db, store, tiers, gap)
 
         for flash_message in flash_messages:
-            print("flashm", flash_message)
+            #print("flashm", flash_message)
             flash(*flash_message)
 
         # get missed and render template
@@ -222,7 +222,7 @@ def adhocdesign():
             missedIntervalNames.append(interval.name)
         return render_template('/adhoc_result.html', primerTable=primerTable, resultList=resultList, missedIntervals=missedIntervalNames)
     else:
-        print >> sys.stderr, "no locus or file given"
+        print ("no locus or file given", file=sys.stderr)
         return render_template('/adhoc_result.html', primerTable=[], resultList=[], missedIntervals=[])
 
 
@@ -236,7 +236,7 @@ def updatePrimerLocation():
         assert primername
         loc = Location(vessel, well)
     except:
-        print >> sys.stderr, 'Please fill in all fields (PrimerName VesselNumber Well)'
+        print ('Please fill in all fields (PrimerName VesselNumber Well)', file=sys.stderr)
         return render_template('location_updated.html', status=None)
     # read config
     with open(app.config['CONFIG_FILE']) as conf:
@@ -285,7 +285,7 @@ def updateLocationFromTable(primerInfo):
             assert primerName
             loc = Location(vessel, well)
         except:
-            print >> sys.stderr, 'Please fill in all fields (PrimerName VesselNumber Well)'
+            print ('Please fill in all fields (PrimerName VesselNumber Well)', file=sys.stderr)
             return render_template('location_updated.html', status=None)
         with open(app.config['CONFIG_FILE']) as conf:
             config = json.load(conf, object_hook=ascii_encode_dict)
@@ -309,11 +309,11 @@ def updateLocationFromTable(primerInfo):
 @app.route('/select_primer_to_rename/<primerName>/<primerLoc>', methods=['POST'])
 def primer_to_rename(primerName, primerLoc):
     newName = request.form.get('name')
-    print >> sys.stderr, primerName
-    print >> sys.stderr, primerLoc
-    print >> sys.stderr, newName
+    print(primerName, file=sys.stderr)
+    print(primerLoc, file=sys.stderr)
+    print(newName, file=sys.stderr)
     primerInfo = primerName + '|' + primerLoc + '|' + newName
-    print >> sys.stderr, primerInfo
+    print(primerInfo, file=sys.stderr)
     return redirect('/update_primer_name/%s' % (primerInfo))
 
 
@@ -355,7 +355,7 @@ def search_by_name():
 
 @app.route('/blacklist_pair/<pairname>', methods=['POST'])
 def blacklist_pair(pairname):
-    print >> sys.stderr, 'This is the pairname: ' + pairname
+    print ('This is the pairname: ' + pairname, file=sys.stderr)
     with open(app.config['CONFIG_FILE']) as conf:
         config = json.load(conf, object_hook=ascii_encode_dict)
         db = PrimerDB(config['database'], dump=config['ampliconbed'])
@@ -367,7 +367,7 @@ def blacklist_pair(pairname):
 
 @app.route('/delete_pair/<pairname>', methods=['POST'])
 def delete_pair(pairname):
-    print >> sys.stderr, 'This is the pairname: ' + pairname
+    print ('This is the pairname: ' + pairname, file=sys.stderr)
     with open(app.config['CONFIG_FILE']) as conf:
         config = json.load(conf, object_hook=ascii_encode_dict)
         db = PrimerDB(config['database'], dump=config['ampliconbed'])
@@ -399,5 +399,5 @@ def upload_samplesheet():
                         flash('%s location sucessfully set to %s' % (item[0], str(item[1])), 'success')
                     else:
                         flash('%s location update to %s failed' % (item[0], str(item[1])), 'warning')
-            print >> sys.stderr, 'Updated locations using :', updateList
+            print ('Updated locations using :', updateList, file=sys.stderr)
     return redirect('/index')

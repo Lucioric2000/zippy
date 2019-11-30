@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 
 __doc__=="""SQLITE Database API"""
 __author__ = "David Brawand"
@@ -90,9 +91,9 @@ class PrimerDB(object):
                 uniqueid TEXT PRIMARY KEY, blacklistdate TEXT);''')
             self.db.commit()
         except:
-            print >> sys.stderr, self.sqlite
-            print >> sys.stderr, self.db
-            print >> sys.stderr, cursor
+            print(self.sqlite, file=sys.stderr)
+            print(self.db, file=sys.stderr)
+            print(cursor, file=sys.stderr)
             raise
         finally:
             self.db.close()
@@ -137,9 +138,9 @@ class PrimerDB(object):
                     with open(self.dumpl,'w') as fh:
                     #with sys.stdout as fh:
                         for row in rows:
-                            print >> fh, '\t'.join(map(str,row))
+                            print('\t'.join(map(str,row)), file=fh)
                 except IOError:
-                    print >> sys.stderr, "cannot write to %s" % self.dumpl
+                    print("cannot write to %s" % self.dumpl, file=sys.stderr)
                     pass  # fail silently (eg if data cannot be written)
                 except:
                     raise
@@ -236,7 +237,7 @@ class PrimerDB(object):
                         raise
                     else:
                         if originalName != p.name:
-                            print >> sys.stderr, "WARNING: renamed primer {} -> {} in database".format(originalName, p.name)
+                            print("WARNING: renamed primer {} -> {} in database".format(originalName, p.name), file=sys.stderr)
                         break  # sucessfully stored
                 # store mapping loci
                 for l in p.loci:
@@ -340,9 +341,10 @@ class PrimerDB(object):
             # get reverse status (from name)
             orientations = [ x[1] for x in map(parsePrimerName,row[5:7]) ]
             if not any(orientations) or len(set(orientations))==1:
-                print >> sys.stderr, '\rWARNING: {} orientation is ambiguous ({},{}){}\r'.format(row[0],\
+
+                print('\rWARNING: {} orientation is ambiguous ({},{}){}\r'.format(row[0],\
                     '???' if orientations[0]==0 else 'rev' if orientations[0]<0 else 'fwd', \
-                    '???' if orientations[0]==0 else 'rev' if orientations[1]<0 else 'fwd'," "*20)
+                    '???' if orientations[0]==0 else 'rev' if orientations[1]<0 else 'fwd'," "*20), file=sys.stderr)
                 reverse = False
             elif orientations[0]>0 or orientations[1]<0:
                 reverse = False
@@ -415,7 +417,6 @@ class PrimerDB(object):
             raise
         else:
             cursor = self.db.cursor()
-            #print >>sys.stderr, "adaba", [(comments, primerid[9:]) for primerid, comments in comments_multidict.items() if primerid.startswith("comments_")]
             cursor.executemany('''UPDATE OR IGNORE pairs
                 SET comments = ? WHERE pairid = ?''', \
                 ((comments, primerid[9:]) for primerid, comments in comments_multidict.items() if primerid.startswith("comments_")))
@@ -598,7 +599,7 @@ class PrimerDB(object):
                             prepend = kwargs['sequencetags'][row[3]]['tags'][1]
                         else:
                             raise Exception('PrimerNameParseError')
-                        print >> sys.stderr, prepend
+                        print(prepend, file=sys.stderr)
                     except AssertionError:
                         raise
                     except:

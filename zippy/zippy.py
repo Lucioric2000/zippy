@@ -37,8 +37,6 @@ from collections import defaultdict, Counter
 from urllib import unquote
 import cPickle as pickle
 sys.stderr=sys.stdout
-#def print(*args, **kwa):
-#   sys.stdout.write((args, kwa))
 
 '''file MD5'''
 def fileMD5(fi, block_size=2**20):
