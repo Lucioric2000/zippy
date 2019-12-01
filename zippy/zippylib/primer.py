@@ -378,7 +378,8 @@ class PrimerPair(list):
         return True
 
     def uniqueid(self):
-        return sha1(','.join([str(self[0].tag)+'-'+self[0].seq,str(self[1].tag)+'-'+self[1].seq])).hexdigest()
+        stringtohash = ','.join([str(self[0].tag)+'-'+self[0].seq,str(self[1].tag)+'-'+self[1].seq])
+        return sha1(stringtohash.encode("UTF-8")).hexdigest()
 
     '''returns primer suffixes'''
     def primerSuffixes(self):
@@ -547,6 +548,7 @@ class Primer3(object):
         try:
             #self.sequence = fasta.fetch(*self.designregion)
             self.sequence = fasta.fetch(self.designregion[0])
+            assert 0, (len(self.sequence), fasta.fetch(*self.designregion))
         except KeyError as kerr:
             assert kerr.args[0]=="sequence 'b'{0}'' not present".format(self.designregion[0]), (kerr, "sequence 'b'{0}'' not present".format(self.designregion[0]))
             assert self.designregion[0][0:3].lower()=="chr"

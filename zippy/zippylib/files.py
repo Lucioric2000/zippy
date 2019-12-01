@@ -27,6 +27,7 @@ class GenePred(IntervalList):
         intervalindex = defaultdict(list)
         # read exons per gene
         genes = defaultdict(list)
+        assert 0
         for (iline,line) in enumerate(fh):
             if iline==0 and line.startswith("track"):
                 continue
@@ -61,7 +62,6 @@ class GenePred(IntervalList):
                             continue
                         if eints[1] < geneStart or geneEnd < eints[0]:
                             continue  # noncoding
-                        #print("exon", e, f[12])
                         try:
                             exonStart = eints[0] if noncoding else max(geneStart,eints[0])
                             exonEnd = eints[1] if noncoding else min(geneEnd,eints[1])
