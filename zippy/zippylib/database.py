@@ -43,7 +43,6 @@ class PrimerDB(object):
     def __init__(self, database, dump=None):
         # open database and get a cursor
         self.sqlite = database
-        import pwd, os
         try:
             self.db = sqlite3.connect(self.sqlite)
         except Exception as exc:

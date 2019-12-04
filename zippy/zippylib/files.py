@@ -19,43 +19,43 @@ from . import ConfigError
 from .interval import *
 from urllib.parse import quote, unquote
 
-'''GenePred parser with automatic segment numbering and tiling'''
+
 class GenePred(IntervalList):
-    def __init__(self,fh,getgenes=None,interval=None,overlap=None,flank=0,combine=True,noncoding=False):
+    '''GenePred parser with automatic segment numbering and tiling'''
+    def __init__(self, fh, getgenes=None, interval=None, overlap=None, flank=0, combine=True,
+                 noncoding=False):
         IntervalList.__init__(self, [], source='GenePred')
-        counter = Counter()
         intervalindex = defaultdict(list)
         # read exons per gene
         genes = defaultdict(list)
-        assert 0
-        for (iline,line) in enumerate(fh):
-            if iline==0 and line.startswith("track"):
+        for (iline, line) in enumerate(fh):
+            if iline == 0 and line.startswith("track"):
                 continue
             if line.startswith("#"):
                 continue
             else:
                 # create gene and add exons
                 f = line.split()
-                if len(f)<5:
-                    chrom=f[0]
-                    geneStart=int(f[1])
-                    geneEnd=int(f[2])
-                    geneName=f[3]
-                    reverse=geneEnd<geneStart
+                if len(f) < 5:
+                    chrom = f[0]
+                    geneStart = int(f[1])
+                    geneEnd = int(f[2])
+                    geneName = f[3]
+                    reverse = geneEnd < geneStart
                     assert not reverse
-                    gene = Interval(chrom,geneStart,geneEnd,geneName,reverse)
-                    #Consider all the gene as exon. TODO: is it good?
-                    gene.addSubintervals([Interval(chrom,geneStart,geneEnd,geneName,reverse)])
+                    gene = Interval(chrom, geneStart, geneEnd, geneName, reverse)
+                    # Consider all the gene as exon. TODO: is it good?
+                    gene.addSubintervals([Interval(chrom, geneStart, geneEnd, geneName, reverse)])
                 else:
-                    if getgenes and (f[12] not in getgenes or int(f[6])==int(f[7])) and not noncoding:  # ignore non-coding transcripts
+                    if getgenes and (f[12] not in getgenes or int(f[6]) == int(f[7])) and not noncoding:  # ignore non-coding transcripts
                         continue
                     # coding / noncoding
                     geneStart = int(f[4]) if noncoding else int(f[6])
                     geneEnd = int(f[5]) if noncoding else int(f[7])
                     reverse = f[3].startswith('-')
-                    gene = Interval(f[2],geneStart,geneEnd,f[12],reverse)
+                    gene = Interval(f[2], geneStart, geneEnd, f[12], reverse)
                     # parse exons
-                    for e in zip(f[9].split(','),f[10].split(',')):
+                    for e in zip(f[9].split(','), f[10].split(',')):
                         try:
                             eints = list(map(int,e))
                         except:
@@ -65,7 +65,7 @@ class GenePred(IntervalList):
                         try:
                             exonStart = eints[0] if noncoding else max(geneStart,eints[0])
                             exonEnd = eints[1] if noncoding else min(geneEnd,eints[1])
-                            gene.addSubintervals([Interval(f[2],exonStart,exonEnd,f[12],reverse)])
+                            gene.addSubintervals([Interval(f[2], exonStart, exonEnd, f[12], reverse)])
                         except ValueError:
                             assert 0
                             pass
@@ -87,7 +87,6 @@ class GenePred(IntervalList):
                     # add new
                     genes[gene.name].append(gene)
         # name metaexons and combine if small enough
-        #assert 0
         for genename, genelist in genes.items():
             for g in genelist:
                 if combine:
@@ -138,7 +137,7 @@ class GenePred(IntervalList):
             for iv in ivs:
                 if interval and overlap and interval < len(iv):
                     assert '+' not in iv.name  # paranoia
-                    self += iv.tile(interval,overlap,len(f)>3)  # name with suffix if named interval
+                    self += iv.tile(interval, overlap, len(f)>3)  # name with suffix if named interval
                 else:
                     self += [ iv ]
         # add flanks

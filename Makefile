@@ -4,7 +4,7 @@ ZIPPYPATH=/usr/local/zippy
 ZIPPYVAR=/var/local/zippy
 ZIPPYWWW=/var/www/zippy
 SOURCE=zippy
-VERSION=6.15
+VERSION=6.2
 
 genome=human_g1k_v37
 server=nginx#Can be nginx or apache

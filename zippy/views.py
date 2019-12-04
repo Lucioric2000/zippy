@@ -210,6 +210,11 @@ def adhocdesign():
             config = json.load(conf)
             db = PrimerDB(config['database'],dump=config['ampliconbed'])
         # run Zippy
+        """import cProfile
+        profiler = cProfile.Profile()
+        profiler.runcall(zippyPrimerQuery, config, args, design, None, db, store, tiers, gap)
+        profiler.print_stats()
+        assert 0"""
         primerTable, resultList, missedIntervals, flash_messages = zippyPrimerQuery(config, args, design, None, db, store, tiers, gap)
 
         for flash_message in flash_messages:
