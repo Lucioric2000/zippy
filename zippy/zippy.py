@@ -475,7 +475,8 @@ def getPrimers(intervals, db, design, config, tiers=[0], rename=None, compatible
 # ==============================================================================
 
 # query database / design primer for VCF,BED,GenePred or interval
-def zippyPrimerQuery(config, targets, design=True, outfile=None, db=None, store=False, tiers=[0], gap=None):
+def zippyPrimerQuery(config, targets, design=True, outfile=None, db=None, store=False, tiers=[0],
+    gap=None, name_to_dump=None):
     flash_messages = []
     if isinstance(targets,tuple):
         intervalforlocus = readTargets(targets[1], config['tiling'])  # get intervals from file or commandline
