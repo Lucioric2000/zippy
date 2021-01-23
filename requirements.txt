@@ -10,7 +10,7 @@ celery==5.0.5
 #cffi==1.6.0
 cffi==1.14.4
 cssmin==0.2.0
-dominate==2.2.0
+dominate==2.6.0
 factory-boy==2.6.1
 fake-factory==0.5.7
 flake8==2.5.4
