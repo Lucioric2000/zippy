@@ -76,7 +76,7 @@ wheel==0.36.2
 WTForms==2.3.3
 cython==0.29.21
 numpy==1.19.5
-tqdm
+tqdm==4.56.0
 requests
 #download
 biopython
