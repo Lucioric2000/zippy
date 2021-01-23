@@ -60,7 +60,7 @@ pytest==6.2.1
 python-dateutil==2.8.1
 python-editor==1.0.4
 pytz==2020.5
-reportlab==3.3.0
+reportlab==3.5.60
 #six==1.10.0
 six
 #six==1.12.0
