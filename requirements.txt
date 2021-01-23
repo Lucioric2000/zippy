@@ -52,7 +52,7 @@ primer3-py==0.6.1
 psycopg2==2.8.6
 #py==1.4.31
 py==1.10.0
-pycparser==2.14
+pycparser==2.20
 pyflakes==1.0.0
 #pysam==0.15
 pysam
