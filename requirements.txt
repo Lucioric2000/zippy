@@ -55,7 +55,7 @@ py==1.10.0
 pycparser==2.20
 pyflakes==2.2.0
 #pysam==0.15
-pysam
+pysam==0.16.0.1
 pytest==2.9.0
 python-dateutil==2.5.3
 python-editor==1.0
