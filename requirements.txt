@@ -77,7 +77,7 @@ WTForms==2.3.3
 cython==0.29.21
 numpy==1.19.5
 tqdm==4.56.0
-requests
+requests==2.25.1
 #download
 biopython
 #xml2dict
