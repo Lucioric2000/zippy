@@ -29,7 +29,7 @@ Flask-Login==0.5.0
 Flask-Migrate==2.6.0
 Flask-Script==2.0.6
 Flask-SQLAlchemy==2.4.4
-Flask-WTF==0.12
+Flask-WTF==0.14.3
 #gunicorn==19.4.5
 gunicorn==20.0.4
 hashids==1.1.0
