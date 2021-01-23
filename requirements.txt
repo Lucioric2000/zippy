@@ -12,7 +12,7 @@ cffi==1.14.4
 cssmin==0.2.0
 dominate==2.6.0
 factory-boy==3.2.0
-fake-factory==0.5.7
+fake-factory==9999.9.9
 flake8==2.5.4
 flake8-blind-except==0.1.0
 flake8-debugger==1.4.0
