@@ -38,7 +38,7 @@ isort==5.7.0
 itsdangerous==1.1.0
 Jinja2==2.11.2
 jsmin==2.2.2
-kombu==3.0.35
+kombu==5.0.2
 Mako==1.0.4
 MarkupSafe==0.23
 mccabe==0.4.0
