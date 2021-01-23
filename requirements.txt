@@ -79,7 +79,7 @@ numpy==1.19.5
 tqdm==4.56.0
 requests==2.25.1
 #download
-biopython
+biopython==1.78
 #xml2dict
 xmltodict
 gsutil
