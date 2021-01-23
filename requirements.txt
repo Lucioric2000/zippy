@@ -8,7 +8,7 @@ billiard==3.6.3.0
 blinker==1.4
 celery==5.0.5
 #cffi==1.6.0
-cffi
+cffi==1.14.4
 cssmin==0.2.0
 dominate==2.2.0
 factory-boy==2.6.1
