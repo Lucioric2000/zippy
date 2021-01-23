@@ -43,7 +43,7 @@ Mako==1.1.4
 MarkupSafe==1.1.1
 mccabe==0.6.1
 pep257==0.7.0
-pep8==1.7.0
+pep8==1.7.1
 pep8-naming==0.3.3
 #Pillow==3.3.0
 primer3-py==0.6.0
