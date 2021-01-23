@@ -37,7 +37,7 @@ ipaddress==1.0.23
 isort==5.7.0
 itsdangerous==1.1.0
 Jinja2==2.11.2
-jsmin==2.2.1
+jsmin==2.2.2
 kombu==3.0.35
 Mako==1.0.4
 MarkupSafe==0.23
