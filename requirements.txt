@@ -2,7 +2,7 @@ alembic==1.5.2
 amqp==5.0.3
 anyjson==0.3.3
 #pyamqp
-bcrypt==3.1.7
+bcrypt==3.2.0
 beautifulsoup4==4.4.1
 billiard==3.3.0.23
 blinker==1.4
