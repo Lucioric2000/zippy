@@ -6,7 +6,7 @@ bcrypt==3.2.0
 beautifulsoup4==4.9.3
 billiard==3.6.3.0
 blinker==1.4
-celery==3.1.23
+celery==5.0.5
 #cffi==1.6.0
 cffi
 cssmin==0.2.0
