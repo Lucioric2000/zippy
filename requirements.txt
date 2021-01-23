@@ -14,7 +14,7 @@ dominate==2.6.0
 factory-boy==3.2.0
 fake-factory==9999.9.9
 flake8==3.8.4
-flake8-blind-except==0.1.0
+flake8-blind-except==0.2.0
 flake8-debugger==1.4.0
 flake8-docstrings==0.2.5
 flake8-isort==1.2
